@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">QRCodeFileReciver</string>
+    <string name="main_reset">Reset</string>
+    <string name="main_save">Save file</string>
+</resources>
