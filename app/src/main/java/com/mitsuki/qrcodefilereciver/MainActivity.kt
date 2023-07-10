@@ -6,7 +6,6 @@ import android.graphics.Rect
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
@@ -16,6 +15,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.mitsuki.qrcodefilereciver.databinding.ActivityMainBinding
+import com.mitsuki.qrcodefilereciver.file.ExportFileActivityResultContract
 import com.mitsuki.qrcodefilereciver.qrcode.BarcodeAnalysis
 import com.mitsuki.qrcodefilereciver.qrcode.CodeMark
 import com.mitsuki.qrcodefilereciver.task.CodeDataHandler
@@ -56,6 +56,21 @@ class MainActivity : AppCompatActivity(), DataCollectEvent {
             }
         }
 
+    private val fileExportLauncher = registerForActivityResult(ExportFileActivityResultContract()) {
+        Thread {
+            it.second?.let { uri -> contentResolver.openOutputStream(uri) }?.use { outputStream ->
+                it.first.inputStream().use { inputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }?.also {
+                runOnUiThread { Toast.makeText(this, "保存成功", Toast.LENGTH_SHORT).show() }
+            } ?: kotlin.run {
+                runOnUiThread { Toast.makeText(this, "保存失败", Toast.LENGTH_SHORT).show() }
+            }
+
+        }.start()
+    }
+
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,20 +79,39 @@ class MainActivity : AppCompatActivity(), DataCollectEvent {
         setContentView(binding.root)
 
         cameraExecutor = Executors.newSingleThreadExecutor()
-
-        binding.dataReset.setOnClickListener {
-            binding.dataInfo.text = "Ready to transport"
-            binding.dataProgress.text = ""
-            binding.dataSave.isVisible = false
-            codeDataHandler.createTask()
+        binding.dataReset.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked) {
+                binding.dataInfo.text = "Ready to transport"
+                binding.dataProgress.text = ""
+                binding.dataSave.isVisible = false
+                codeDataHandler.createTask()
+            } else {
+                //这里不一定能清空，因为线程池中可能还存在任务
+                binding.dataInfo.text = ""
+                binding.dataProgress.text = ""
+                binding.dataSave.isVisible = false
+                codeDataHandler.clearChip()
+            }
         }
 
         binding.dataSave.setOnClickListener {
             Toast.makeText(this, "Merge file", Toast.LENGTH_SHORT).show()
             Thread {
-                val file = codeDataHandler.obtainFile()
-                Log.d("asdf", "$file")
+                codeDataHandler.obtainFile()?.also {
+                    fileExportLauncher.launch(it)
+                } ?: runOnUiThread {
+                    Toast.makeText(this, "保存失败", Toast.LENGTH_SHORT).show()
+                }
             }.start()
+        }
+        binding.dataClearChip.setOnClickListener {
+            Toast.makeText(this, "Clear chip file cache.", Toast.LENGTH_SHORT).show()
+            codeDataHandler.clearChip()
+        }
+
+        binding.dataClearMerge.setOnClickListener {
+            Toast.makeText(this, "Clear merge file cache.", Toast.LENGTH_SHORT).show()
+            codeDataHandler.clearMerge()
         }
 
         if (allPermissionsGranted()) {

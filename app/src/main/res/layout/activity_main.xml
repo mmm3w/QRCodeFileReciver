@@ -23,11 +23,29 @@
         android:layout_gravity="top"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/data_reset"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/main_reset" />
+            android:orientation="horizontal">
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/data_reset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/main_ready" />
+
+            <Button
+                android:id="@+id/data_clear_chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/clear_chip" />
+
+            <Button
+                android:id="@+id/data_clear_merge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/clear_merge_file" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/data_info"

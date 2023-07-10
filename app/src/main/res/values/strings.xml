@@ -2,4 +2,7 @@
     <string name="app_name">QRCodeFileReciver</string>
     <string name="main_reset">Reset</string>
     <string name="main_save">Save file</string>
+    <string name="clear_chip">clear chip</string>
+    <string name="clear_merge_file">clear merge file</string>
+    <string name="main_ready">Ready?</string>
 </resources>

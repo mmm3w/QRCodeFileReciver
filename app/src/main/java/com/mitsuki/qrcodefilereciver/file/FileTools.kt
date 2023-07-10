@@ -1,7 +1,6 @@
-package com.mitsuki.qrcodefilereciver.task
+package com.mitsuki.qrcodefilereciver.file
 
 import android.content.Context
-import android.util.Log
 import com.mitsuki.qrcodefilereciver.clear
 import com.mitsuki.qrcodefilereciver.ensureDir
 import java.io.File
@@ -28,4 +27,13 @@ class FileTools(context: Context) {
         saveFile.clear()
         return saveFile
     }
+
+    fun clearChip() {
+        File(cacheDir, "file_chip").clear()
+    }
+     fun clearMerge() {
+        File(cacheDir, "file_merge").clear()
+    }
+
+
 }
